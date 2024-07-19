@@ -13,8 +13,7 @@ public static class MySqlApplicationExtensions
         app.Services.AddBaGetDbContextProvider<MySqlContext>("MySql", (provider, options) =>
         {
             var databaseOptions = provider.GetRequiredService<IOptionsSnapshot<DatabaseOptions>>();
-
-            options.UseMySql(databaseOptions.Value.ConnectionString);
+            options.UseMySql(ServerVersion.AutoDetect(databaseOptions.Value.ConnectionString));
         });
 
         return app;

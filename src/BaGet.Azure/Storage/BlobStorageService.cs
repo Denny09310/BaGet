@@ -1,4 +1,8 @@
 using BaGet.Core;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
+
+using StorageException = Microsoft.Azure.Cosmos.Table.StorageException;
 
 namespace BaGet.Azure;
 

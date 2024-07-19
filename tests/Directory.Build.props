@@ -1,7 +1,10 @@
 <Project>
 
   <PropertyGroup>
-    <LangVersion>7.2</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -12,10 +15,10 @@
 
   <!-- NuGet dependencies shared across projects -->
   <PropertyGroup>
-    <MicrosoftAspNetCorePackageVersion>3.1.18</MicrosoftAspNetCorePackageVersion>
-    <NewtonsoftJsonPackageVersion>12.0.2</NewtonsoftJsonPackageVersion>
-    <NuGetPackageVersion>5.10.0</NuGetPackageVersion>
-    <XUnitPackageVersion>2.4.1</XUnitPackageVersion>
+    <MicrosoftAspNetCorePackageVersion>8.0.7</MicrosoftAspNetCorePackageVersion>
+    <NewtonsoftJsonPackageVersion>13.0.3</NewtonsoftJsonPackageVersion>
+    <NuGetPackageVersion>6.10.1</NuGetPackageVersion>
+    <XUnitPackageVersion>2.9.0</XUnitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,9 +29,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="xunit" Version="$(XUnitPackageVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XUnitPackageVersion)">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
 </Project>

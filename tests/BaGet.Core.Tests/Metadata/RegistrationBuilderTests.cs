@@ -49,7 +49,7 @@ public class RegistrationBuilderTests
     /// <summary>
     /// Create a fake <see cref="Package"></see> with the minimum metadata needed by the <see cref="RegistrationBuilder"></see>.
     /// </summary>
-    private Package GetTestPackage(string packageId, string version)
+    private static Package GetTestPackage(string packageId, string version)
     {
         return new Package
         {

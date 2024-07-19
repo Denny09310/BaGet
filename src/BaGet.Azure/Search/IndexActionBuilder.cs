@@ -102,7 +102,7 @@ public class IndexActionBuilder
         return result;
     }
 
-    private string EncodePackageId(string key)
+    private static string EncodePackageId(string key)
     {
         // Keys can only contain letters, digits, underscore(_), dash(-), or equal sign(=).
         // TODO: Align with NuGet.org's algorithm.

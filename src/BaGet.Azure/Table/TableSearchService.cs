@@ -128,7 +128,7 @@ public class TableSearchService : ISearchService
         return results;
     }
 
-    private string GenerateSearchFilter(string searchText, bool includePrerelease, bool includeSemVer2)
+    private static string GenerateSearchFilter(string searchText, bool includePrerelease, bool includeSemVer2)
     {
         var result = "";
 

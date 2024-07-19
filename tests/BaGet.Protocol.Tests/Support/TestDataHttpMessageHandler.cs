@@ -32,7 +32,7 @@ public class TestDataHttpMessageHandler : HttpMessageHandler
         return Task.FromResult(Send(request));
     }
 
-    private HttpResponseMessage Send(HttpRequestMessage request)
+    private static HttpResponseMessage Send(HttpRequestMessage request)
     {
         Func<string> getContent;
         if (request.Method != HttpMethod.Get

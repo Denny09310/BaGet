@@ -151,7 +151,7 @@ public class V2UpstreamClient : IUpstreamClient, IDisposable
         };
     }
 
-    private string[] ParseAuthors(string authors)
+    private static string[] ParseAuthors(string authors)
     {
         if (string.IsNullOrEmpty(authors)) return Array.Empty<string>();
 

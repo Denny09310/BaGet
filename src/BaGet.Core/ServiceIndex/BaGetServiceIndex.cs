@@ -11,7 +11,7 @@ public class BaGetServiceIndex : IServiceIndexService
         _url = url ?? throw new ArgumentNullException(nameof(url));
     }
 
-    private IEnumerable<ServiceIndexItem> BuildResource(string name, string url, params string[] versions)
+    private static IEnumerable<ServiceIndexItem> BuildResource(string name, string url, params string[] versions)
     {
         foreach (var version in versions)
         {

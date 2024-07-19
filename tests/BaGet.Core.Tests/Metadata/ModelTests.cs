@@ -197,7 +197,7 @@ public class ModelTests
         }
     }
 
-    private IList<CustomAttributeTypedArgument> GetAttributeArgs<TAttribute>(PropertyInfo property)
+    private static IList<CustomAttributeTypedArgument> GetAttributeArgs<TAttribute>(PropertyInfo property)
     {
         return property
             .CustomAttributes

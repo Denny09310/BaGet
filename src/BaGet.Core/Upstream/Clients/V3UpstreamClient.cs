@@ -26,10 +26,8 @@ public class V3UpstreamClient : IUpstreamClient
     {
         try
         {
-            using (var downloadStream = await _client.DownloadPackageAsync(id, version, cancellationToken))
-            {
-                return await downloadStream.AsTemporaryFileStreamAsync(cancellationToken);
-            }
+            using var downloadStream = await _client.DownloadPackageAsync(id, version, cancellationToken);
+            return await downloadStream.AsTemporaryFileStreamAsync(cancellationToken);
         }
         catch (PackageNotFoundException)
         {
@@ -111,7 +109,7 @@ public class V3UpstreamClient : IUpstreamClient
         };
     }
 
-    private Uri ParseUri(string uriString)
+    private static Uri ParseUri(string uriString)
     {
         if (uriString == null) return null;
 
@@ -123,7 +121,7 @@ public class V3UpstreamClient : IUpstreamClient
         return uri;
     }
 
-    private string[] ParseAuthors(string authors)
+    private static string[] ParseAuthors(string authors)
     {
         if (string.IsNullOrEmpty(authors)) return Array.Empty<string>();
 

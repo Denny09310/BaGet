@@ -129,7 +129,7 @@ public class PackageModel : PageModel
             .ToList();
     }
 
-    private string PrettifyTargetFramework(string targetFramework)
+    private static string PrettifyTargetFramework(string targetFramework)
     {
         if (targetFramework == null) return "All Frameworks";
 
@@ -173,7 +173,7 @@ public class PackageModel : PageModel
         return $"{frameworkName} {frameworkVersion}";
     }
 
-    private IReadOnlyList<VersionModel> ToVersions(IReadOnlyList<Package> packages, NuGetVersion selectedVersion)
+    private static IReadOnlyList<VersionModel> ToVersions(IReadOnlyList<Package> packages, NuGetVersion selectedVersion)
     {
         return packages
             .Select(p => new VersionModel
@@ -197,10 +197,8 @@ public class PackageModel : PageModel
         {
             if (readmeStream == null) return null;
 
-            using (var reader = new StreamReader(readmeStream))
-            {
-                readme = await reader.ReadToEndAsync();
-            }
+            using var reader = new StreamReader(readmeStream);
+            readme = await reader.ReadToEndAsync();
         }
 
         var readmeHtml = Markdown.ToHtml(readme, MarkdownPipeline);

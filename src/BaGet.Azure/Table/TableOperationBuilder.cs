@@ -7,7 +7,7 @@ namespace BaGet.Azure;
 
 public class TableOperationBuilder
 {
-    public TableOperation AddPackage(Package package)
+    public static TableOperation AddPackage(Package package)
     {
         if (package == null) throw new ArgumentNullException(nameof(package));
 
@@ -51,7 +51,7 @@ public class TableOperationBuilder
         return TableOperation.Insert(entity);
     }
 
-    public TableOperation UpdateDownloads(string packageId, NuGetVersion packageVersion, long downloads)
+    public static TableOperation UpdateDownloads(string packageId, NuGetVersion packageVersion, long downloads)
     {
         var entity = new PackageDownloadsEntity();
 
@@ -63,7 +63,7 @@ public class TableOperationBuilder
         return TableOperation.Merge(entity);
     }
 
-    public TableOperation HardDeletePackage(string packageId, NuGetVersion packageVersion)
+    public static TableOperation HardDeletePackage(string packageId, NuGetVersion packageVersion)
     {
         var entity = new PackageEntity();
 
@@ -74,7 +74,7 @@ public class TableOperationBuilder
         return TableOperation.Delete(entity);
     }
 
-    public TableOperation UnlistPackage(string packageId, NuGetVersion packageVersion)
+    public static TableOperation UnlistPackage(string packageId, NuGetVersion packageVersion)
     {
         var entity = new PackageListingEntity();
 
@@ -86,7 +86,7 @@ public class TableOperationBuilder
         return TableOperation.Merge(entity);
     }
 
-    public TableOperation RelistPackage(string packageId, NuGetVersion packageVersion)
+    public static TableOperation RelistPackage(string packageId, NuGetVersion packageVersion)
     {
         var entity = new PackageListingEntity();
 

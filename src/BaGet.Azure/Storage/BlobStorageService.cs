@@ -59,13 +59,11 @@ public class BlobStorageService : IStorageService
         }
         catch (StorageException e) when (e.IsAlreadyExistsException())
         {
-            using (var targetStream = await blob.OpenReadAsync(cancellationToken))
-            {
-                content.Position = 0;
-                return content.Matches(targetStream)
-                    ? StoragePutResult.AlreadyExists
-                    : StoragePutResult.Conflict;
-            }
+            using var targetStream = await blob.OpenReadAsync(cancellationToken);
+            content.Position = 0;
+            return content.Matches(targetStream)
+                ? StoragePutResult.AlreadyExists
+                : StoragePutResult.Conflict;
         }
     }
 

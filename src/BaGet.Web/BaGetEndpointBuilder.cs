@@ -19,7 +19,7 @@ public class BaGetEndpointBuilder
         MapPackageContentRoutes(endpoints);
     }
 
-    public void MapServiceIndexRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapServiceIndexRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
             name: Routes.IndexRouteName,
@@ -27,7 +27,7 @@ public class BaGetEndpointBuilder
             defaults: new { controller = "ServiceIndex", action = "Get" });
     }
 
-    public void MapPackagePublishRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapPackagePublishRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
             name: Routes.UploadPackageRouteName,
@@ -48,7 +48,7 @@ public class BaGetEndpointBuilder
             constraints: new { httpMethod = new HttpMethodRouteConstraint("POST") });
     }
 
-    public void MapSymbolRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapSymbolRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
             name: Routes.UploadSymbolRouteName,
@@ -67,7 +67,7 @@ public class BaGetEndpointBuilder
             defaults: new { controller = "Symbol", action = "Get" });
     }
 
-    public void MapSearchRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapSearchRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
             name: Routes.SearchRouteName,
@@ -86,7 +86,7 @@ public class BaGetEndpointBuilder
             defaults: new { controller = "Search", action = "Dependents" });
     }
 
-    public void MapPackageMetadataRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapPackageMetadataRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
            name: Routes.RegistrationIndexRouteName,
@@ -99,7 +99,7 @@ public class BaGetEndpointBuilder
             defaults: new { controller = "PackageMetadata", action = "RegistrationLeaf" });
     }
 
-    public void MapPackageContentRoutes(IEndpointRouteBuilder endpoints)
+    public static void MapPackageContentRoutes(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapControllerRoute(
             name: Routes.PackageVersionsRouteName,

@@ -1,4 +1,4 @@
-﻿using BaGet.Core;
+using BaGet.Core;
 using Moq;
 using NuGet.Versioning;
 using Xunit;
@@ -199,8 +199,8 @@ public class PackageModelFacts
             .Setup(m => m.FindPackagesAsync("testpackage", _cancellation))
             .ReturnsAsync(
             [
-                CreatePackage("1.0.0", dependencies: new[]
-                {
+                CreatePackage("1.0.0", dependencies:
+                [
                     new PackageDependency
                     {
                         TargetFramework = "net5.0",
@@ -219,7 +219,7 @@ public class PackageModelFacts
                         Id = "Dependency3",
                         VersionRange = "[3.0.0, )",
                     },
-                })
+                ])
             ]);
 
         await _target.OnGetAsync("testpackage", "1.0.0", _cancellation);
@@ -230,7 +230,7 @@ public class PackageModelFacts
         Assert.Equal(".NET Framework 4.8", _target.DependencyGroups[1].Name);
 
         Assert.Equal(2, _target.DependencyGroups[0].Dependencies.Count);
-        Assert.Equal(1, _target.DependencyGroups[1].Dependencies.Count);
+        Assert.Single(_target.DependencyGroups[1].Dependencies);
 
         Assert.Equal("Dependency1", _target.DependencyGroups[0].Dependencies[0].PackageId);
         Assert.Equal("(>= 1.0.0)", _target.DependencyGroups[0].Dependencies[0].VersionSpec);
@@ -254,15 +254,15 @@ public class PackageModelFacts
             .Setup(m => m.FindPackagesAsync("testpackage", _cancellation))
             .ReturnsAsync(
             [
-                CreatePackage("1.0.0", dependencies: new[]
-                {
+                CreatePackage("1.0.0", dependencies:
+                [
                    new PackageDependency
                    {
                        TargetFramework = targetFramework,
                        Id = "DependencyPackage",
                        VersionRange = "[1.0.0, )",
                    }
-                })
+                ])
             ]);
 
         await _target.OnGetAsync("testpackage", "1.0.0", _cancellation);
@@ -295,40 +295,38 @@ public class PackageModelFacts
     [Fact]
     public async Task RendersReadme()
     {
-        using (var readmeStream = new MemoryStream())
+        using var readmeStream = new MemoryStream();
+        using (var streamWriter = new StreamWriter(readmeStream, leaveOpen: true))
         {
-            using (var streamWriter = new StreamWriter(readmeStream, leaveOpen: true))
-            {
-                await streamWriter.WriteLineAsync("# My readme");
-                await streamWriter.WriteLineAsync("Hello world!");
-                await streamWriter.FlushAsync();
-            }
-
-            readmeStream.Position = 0;
-
-            _packages
-                .Setup(m => m.FindPackagesAsync("testpackage", _cancellation))
-                .ReturnsAsync(
-                [
-                    CreatePackage("1.0.0", hasReadme: true),
-                ]);
-
-            _content
-                .Setup(c => c.GetPackageReadmeStreamOrNullAsync(
-                    "testpackage",
-                    It.Is<NuGetVersion>(v => v.OriginalVersion == "1.0.0"),
-                    _cancellation))
-                .ReturnsAsync(readmeStream);
-
-            await _target.OnGetAsync("testpackage", "1.0.0", _cancellation);
-
-            Assert.Equal(
-                "<h1 id=\"my-readme\">My readme</h1>\n<p>Hello world!</p>\n",
-                _target.Readme.Value);
+            await streamWriter.WriteLineAsync("# My readme");
+            await streamWriter.WriteLineAsync("Hello world!");
+            await streamWriter.FlushAsync();
         }
+
+        readmeStream.Position = 0;
+
+        _packages
+            .Setup(m => m.FindPackagesAsync("testpackage", _cancellation))
+            .ReturnsAsync(
+            [
+                CreatePackage("1.0.0", hasReadme: true),
+            ]);
+
+        _content
+            .Setup(c => c.GetPackageReadmeStreamOrNullAsync(
+                "testpackage",
+                It.Is<NuGetVersion>(v => v.OriginalVersion == "1.0.0"),
+                _cancellation))
+            .ReturnsAsync(readmeStream);
+
+        await _target.OnGetAsync("testpackage", "1.0.0", _cancellation);
+
+        Assert.Equal(
+            "<h1 id=\"my-readme\">My readme</h1>\n<p>Hello world!</p>\n",
+            _target.Readme.Value);
     }
 
-    private Package CreatePackage(
+    private static Package CreatePackage(
         string version,
         long downloads = 0,
         bool hasReadme = false,
@@ -337,9 +335,9 @@ public class PackageModelFacts
         IEnumerable<PackageDependency> dependencies = null,
         IEnumerable<string> packageTypes = null)
     {
-        published = published ?? DateTime.Now;
-        dependencies = dependencies ?? Array.Empty<PackageDependency>();
-        packageTypes = packageTypes ?? Array.Empty<string>();
+        published ??= DateTime.Now;
+        dependencies ??= [];
+        packageTypes ??= [];
 
         return new Package
         {

@@ -36,48 +36,44 @@ public class SymbolIndexingService : ISymbolIndexingService
     {
         try
         {
-            using (var symbolPackage = new PackageArchiveReader(stream, leaveStreamOpen: true))
+            using var symbolPackage = new PackageArchiveReader(stream, leaveStreamOpen: true);
+            var pdbPaths = await GetSymbolPackagePdbPathsOrNullAsync(symbolPackage, cancellationToken);
+            if (pdbPaths == null)
             {
-                var pdbPaths = await GetSymbolPackagePdbPathsOrNullAsync(symbolPackage, cancellationToken);
-                if (pdbPaths == null)
+                return SymbolIndexingResult.InvalidSymbolPackage;
+            }
+
+            // Ensure a corresponding NuGet package exists.
+            var packageId = symbolPackage.NuspecReader.GetId();
+            var packageVersion = symbolPackage.NuspecReader.GetVersion();
+
+            var package = await _packages.FindOrNullAsync(packageId, packageVersion, includeUnlisted: true, cancellationToken);
+            if (package == null)
+            {
+                return SymbolIndexingResult.PackageNotFound;
+            }
+
+            using var pdbs = new PdbList();
+            // Extract the portable PDBs from the snupkg. Nothing is persisted until after all
+            // PDBs have been extracted and validated sucessfully.
+            foreach (var pdbPath in pdbPaths)
+            {
+                var portablePdb = await ExtractPortablePdbAsync(symbolPackage, pdbPath, cancellationToken);
+                if (portablePdb == null)
                 {
                     return SymbolIndexingResult.InvalidSymbolPackage;
                 }
 
-                // Ensure a corresponding NuGet package exists.
-                var packageId = symbolPackage.NuspecReader.GetId();
-                var packageVersion = symbolPackage.NuspecReader.GetVersion();
-
-                var package = await _packages.FindOrNullAsync(packageId, packageVersion, includeUnlisted: true, cancellationToken);
-                if (package == null)
-                {
-                    return SymbolIndexingResult.PackageNotFound;
-                }
-
-                using (var pdbs = new PdbList())
-                {
-                    // Extract the portable PDBs from the snupkg. Nothing is persisted until after all
-                    // PDBs have been extracted and validated sucessfully.
-                    foreach (var pdbPath in pdbPaths)
-                    {
-                        var portablePdb = await ExtractPortablePdbAsync(symbolPackage, pdbPath, cancellationToken);
-                        if (portablePdb == null)
-                        {
-                            return SymbolIndexingResult.InvalidSymbolPackage;
-                        }
-
-                        pdbs.Add(portablePdb);
-                    }
-
-                    // Persist the portable PDBs to storage.
-                    foreach (var pdb in pdbs)
-                    {
-                        await _storage.SavePortablePdbContentAsync(pdb.Filename, pdb.Key, pdb.Content, cancellationToken);
-                    }
-
-                    return SymbolIndexingResult.Success;
-                }
+                pdbs.Add(portablePdb);
             }
+
+            // Persist the portable PDBs to storage.
+            foreach (var pdb in pdbs)
+            {
+                await _storage.SavePortablePdbContentAsync(pdb.Filename, pdb.Key, pdb.Content, cancellationToken);
+            }
+
+            return SymbolIndexingResult.Success;
         }
         catch (Exception e)
         {
@@ -127,7 +123,7 @@ public class SymbolIndexingService : ISymbolIndexingService
         return entries.Select(e => new FileInfo(e)).All(IsValidSymbolFileInfo);
     }
 
-    private async Task<PortablePdb> ExtractPortablePdbAsync(
+    private static async Task<PortablePdb> ExtractPortablePdbAsync(
         PackageArchiveReader symbolPackage,
         string pdbPath,
         CancellationToken cancellationToken)
@@ -139,25 +135,23 @@ public class SymbolIndexingService : ISymbolIndexingService
 
         try
         {
-            using (var rawPdbStream = await symbolPackage.GetStreamAsync(pdbPath, cancellationToken))
+            using var rawPdbStream = await symbolPackage.GetStreamAsync(pdbPath, cancellationToken);
+            pdbStream = await rawPdbStream.AsTemporaryFileStreamAsync();
+
+            string signature;
+            using (var pdbReaderProvider = MetadataReaderProvider.FromPortablePdbStream(pdbStream, MetadataStreamOptions.LeaveOpen))
             {
-                pdbStream = await rawPdbStream.AsTemporaryFileStreamAsync();
+                var reader = pdbReaderProvider.GetMetadataReader();
+                var id = new BlobContentId(reader.DebugMetadataHeader.Id);
 
-                string signature;
-                using (var pdbReaderProvider = MetadataReaderProvider.FromPortablePdbStream(pdbStream, MetadataStreamOptions.LeaveOpen))
-                {
-                    var reader = pdbReaderProvider.GetMetadataReader();
-                    var id = new BlobContentId(reader.DebugMetadataHeader.Id);
-
-                    signature = id.Guid.ToString("N").ToUpperInvariant();
-                }
-
-                var fileName = Path.GetFileName(pdbPath).ToLowerInvariant();
-                var key = $"{signature}ffffffff";
-
-                pdbStream.Position = 0;
-                result = new PortablePdb(fileName, key, pdbStream);
+                signature = id.Guid.ToString("N").ToUpperInvariant();
             }
+
+            var fileName = Path.GetFileName(pdbPath).ToLowerInvariant();
+            var key = $"{signature}ffffffff";
+
+            pdbStream.Position = 0;
+            result = new PortablePdb(fileName, key, pdbStream);
         }
         finally
         {

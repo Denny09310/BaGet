@@ -31,7 +31,7 @@ public class TablePackageDatabase : IPackageDatabase
     {
         try
         {
-            var operation = _operationBuilder.AddPackage(package);
+            var operation = TableOperationBuilder.AddPackage(package);
 
             await _table.ExecuteAsync(operation, cancellationToken);
         }
@@ -173,25 +173,25 @@ public class TablePackageDatabase : IPackageDatabase
     public async Task<bool> HardDeletePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
     {
         return await TryUpdatePackageAsync(
-            _operationBuilder.HardDeletePackage(id, version),
+            TableOperationBuilder.HardDeletePackage(id, version),
             cancellationToken);
     }
 
     public async Task<bool> RelistPackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
     {
         return await TryUpdatePackageAsync(
-            _operationBuilder.RelistPackage(id, version),
+            TableOperationBuilder.RelistPackage(id, version),
             cancellationToken);
     }
 
     public async Task<bool> UnlistPackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
     {
         return await TryUpdatePackageAsync(
-            _operationBuilder.UnlistPackage(id, version),
+            TableOperationBuilder.UnlistPackage(id, version),
             cancellationToken);
     }
 
-    private List<string> MinimalColumnSet => ["PartitionKey"];
+    private static List<string> MinimalColumnSet => ["PartitionKey"];
 
     private async Task<bool> TryUpdatePackageAsync(TableOperation operation, CancellationToken cancellationToken)
     {

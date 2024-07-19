@@ -57,7 +57,7 @@ public class HostIntegrationTests
         Assert.IsType<SqliteContext>(context);
     }
 
-    private IServiceProvider BuildServiceProvider(Dictionary<string, string> configs = null)
+    private static IServiceProvider BuildServiceProvider(Dictionary<string, string> configs = null)
     {
         var host = Program
             .CreateHostBuilder(new string[0])
